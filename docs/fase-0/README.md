@@ -98,8 +98,14 @@ evidência, não ao cronograma.
       **nenhum candidato de temporização é eliminado por esta política** — `WorkManager` puro
       segue vivo para o ADR-0007. Achado: enquadrar-se não custaria uma notificação, **impediria
       a publicação** (issue #20)
-- [ ] Decisão sobre a flag `isMonitoringTool` e sobre a divulgação na descrição da loja
-- [ ] Matriz de permissões e políticas do Documento 2, §34.5 preenchida
+- [~] Decisão sobre a flag `isMonitoringTool` — **posição de Fase 0 registrada:** não declarar,
+      salvo se a revisão formal do Play Console determinar enquadramento obrigatório. **Não
+      inserir no `spike/` nem no manifesto-base.** ADR definitivo **não** proposto agora, por
+      instrução do fundador — fecha depois das verificações
+- [x] **Matriz de permissões e políticas do §34.5 preenchida** — `matriz-permissoes-politicas.md`.
+      22 permissões e APIs, 8 declarações de loja, com finalidade, momento, política, declaração,
+      **alternativa rejeitada**, degradação, ramificação por API, fase e risco. 4 `VERIFICAR:`
+      pendentes, todos de Play Console
 - [ ] Textos das declarações · roteiro do vídeo · texto de divulgação proeminente
 - [ ] Rascunho de Data Safety coerente com a matriz de tratamento do Documento 3
 - [ ] Rascunho da declaração de escopo mínimo de `ACCESS_FINE_LOCATION` (gate da Fase 7)
