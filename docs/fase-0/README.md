@@ -1,6 +1,6 @@
 # Fase 0 — Viabilidade técnica
 
-**Estado: UM PORTÃO FECHADO, UM ABERTO.** Timebox declarado; método aguardando aceite — ver §2.
+**Estado: ✅ FASE 0 FORMALMENTE AUTORIZADA.** Timebox declarado e método congelado — ver §2.
 **Autoridade da fase:** Documento 5, Fase 0. Este arquivo não define escopo, critério de aceite
 nem evidência; ele registra **situação** e **pendências**.
 
@@ -29,16 +29,19 @@ viabilidade da temporização · aprovação da loja · **canal de alerta**.
 | 2 | **ADR-0002** aprovado | ✅ **ACEITO** — segundo critério do §39 endereçado pela medição M15 |
 | 3 | **ADR-0003** aprovado | ✅ **ACEITO** |
 | 4 | Aparelhos reais: dois abaixo de API 33, um em Android 16, um em Android 17 | ✅ **disponíveis**; Documento 5 corrigido para exigir os quatro |
-| 5 | **Método de medição escrito, revisado e aceito antes da coleta** | ⏳ **v1.0 submetido**; aguarda aceite. **É o único portão que resta** |
+| 5 | **Método de medição escrito, revisado e aceito antes da coleta** | ✅ **v1.0 VIGENTE e congelado** — aceite em `aceite-metodo-v1.0.md`, com hash e commit |
 | 6 | Template de evidência (núcleo §9) | ✅ disponível em `docs/agentes/00-nucleo.md` |
 | 7 | **Timebox declarado** (alvo e limite duro, em semanas) — Doc 5, §2 | ✅ **6 semanas de alvo, 8 de limite duro** (Documento 5, Fase 0) |
 | 8 | Servidor de teste | ⏳ a confirmar |
 | 9 | Conta no Play Console | ⏳ a confirmar |
 | 10 | Contas de teste em três operadoras | ⏳ a confirmar |
 
-**Uma condição trava a partida formal: o aceite do método (#5).** As condições #8 a #10 travam
-medições específicas (M10 e a sincronização do protótipo), não a fase inteira — os entregáveis de
-mesa e os ensaios de plataforma não dependem delas.
+**Nenhuma condição trava a partida formal.** As condições #8 a #10 travam medições específicas
+(M10 e a sincronização do protótipo), não a fase — os entregáveis de mesa e os ensaios de
+plataforma não dependem delas, e a semana 1 do timebox é exatamente para resolvê-las.
+
+> **A Fase 0 está autorizada a iniciar.** Timebox declarado no Documento 5; método v1.0 congelado
+> com hash `e3367d84…` no commit `6b334d6e`.
 
 ## 3. Decisões tomadas em 2026-07-27
 
