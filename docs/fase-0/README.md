@@ -1,6 +1,6 @@
 # Fase 0 — Viabilidade técnica
 
-**Estado: NÃO INICIADA.** Pré-condições de entrada em aberto — ver §2.
+**Estado: PRONTA PARA INICIAR, faltando duas condições** — ver §2.
 **Autoridade da fase:** Documento 5, Fase 0. Este arquivo não define escopo, critério de aceite
 nem evidência; ele registra **situação** e **pendências**.
 
@@ -13,50 +13,69 @@ declarações da Google Play.
 
 > **O entregável real é matriz de capacidade, medições e ADRs. Não é software.**
 
-Todo código da fase é descartável por definição, vive em `spike/` e não é promovido (ADR-0003).
-A isenção vale para as regras de **código**, não para as de **evidência** — nesta fase a
-evidência **é** o entregável: o p99 medido vira `margem_de_rede` em produção e os limiares de
-bateria viram gate de release por ADR-0012.
+Todo código da fase é descartável por definição, vive em `spike/` e não é promovido
+(ADR-0003, aceito). A isenção vale para as regras de **código**, não para as de **evidência** —
+nesta fase a evidência **é** o entregável: o p99 medido vira `margem_de_rede` em produção e os
+limiares de bateria viram gate de release por ADR-0012.
 
 **Três hipóteses críticas** são testadas aqui e em nenhuma fase posterior (Documento 1, §24.2):
 viabilidade da temporização · aprovação da loja · **canal de alerta**.
 
-## 2. Pré-condições de entrada — situação
+## 2. Pré-condições de entrada — situação em 2026-07-27
 
-| # | Pré-condição | Fonte | Situação |
-|---|---|---|---|
-| 1 | **ADR-0001** aprovado | Doc 5, Fase 0 (Dependências) | `docs/adr/0001-stack-base.md` — **PROPOSTO**, aguarda aceite |
-| 2 | **ADR-0002** aprovado | idem | `docs/adr/0002-minsdk-targetsdk.md` — **PROPOSTO**, com um critério de dois satisfeito |
-| 3 | **ADR-0003** aprovado | idem | `docs/adr/0003-estrutura-descartavel-fase-0.md` — **PROPOSTO**, aguarda aceite |
-| 4 | **Timebox declarado** (alvo e limite duro, em semanas) | Doc 5, §2 — *"fase sem timebox não inicia"* | ❌ **não existe** |
-| 5 | Três ou mais aparelhos reais, dois abaixo de API 33, um no Android atual | Doc 5, Fase 0 | ❌ não confirmados — e a matriz tem lacuna, ver M9 |
-| 6 | Servidor de teste | idem | ❌ não confirmado |
-| 7 | Conta no Play Console | idem | ❌ não confirmada |
-| 8 | Contas de teste em três operadoras | idem | ❌ não confirmadas |
-| 9 | **Método de medição escrito e revisado antes da coleta** | Doc 5, Fase 0 | `metodo-de-medicao.md` — **escrito**, aguarda revisão |
-| 10 | **Template de evidência do núcleo §9** | Doc 5, §6; mód. 40 §5 | ❌ **ausente do repositório** — ver `docs/agentes/00-nucleo.AUSENTE.md` |
-
-## 3. Decisões que só o fundador pode tomar
-
-Reunidas aqui para não ficarem espalhadas. Cada uma bloqueia ou altera trabalho concreto.
-
-| ID | Decisão | Bloqueia |
+| # | Pré-condição | Situação |
 |---|---|---|
-| **D1** | Enviar `00-nucleo.md` v2.3, ou operar com a ausência declarada | Template de evidência (§9); implantação dos gates de CI (§11); conferência dos marcadores (§0) |
-| **D2** | Incorporar ao Documento 5 as três medições do ARB4-007 (M12, M13, M14) — condição declarada pela ARB4 para iniciar a fase | Fechamento do método de medição. Depois da coleta, custa recoleta |
-| **D3** | Aplicar ou não os seis itens do portão da ARB4 antes de iniciar | Se não aplicar, a Fase 1 herda o ARB4-001 (Crítico) no §16.8 |
-| **D4** | Aceitar os ADRs 0001, 0002 e 0003 | Entrada formal da fase |
-| **D5** | Incluir a distribuição de versões do Android no público-alvo (M15) na mesma pesquisa da M11 | Fecha o segundo critério do ADR-0002 antes da revisão |
-| **D6** | Declarar a faixa provisória de intervalo de check-in (mínimo e máximo) — hoje é propriedade do ADR-0005-A, cujo prazo é *depois* desta fase | Fixação do intervalo a medir em M1; e o timebox, que é dominado por ele |
-| **D7** | Resolver a lacuna da matriz: sem aparelho em Android 16, a M9 não é executável | Compra de hardware. Depois é dinheiro gasto na configuração errada |
-| **D8** | Confirmar o recorte de papéis: agente escreve método, instrumento, entregáveis de loja e ADRs; **humano identificado executa a coleta** | Todo o cronograma da fase |
+| 1 | **ADR-0001** aprovado | ✅ **ACEITO** |
+| 2 | **ADR-0002** aprovado | ✅ **ACEITO** — segundo critério do §39 endereçado pela medição M15 |
+| 3 | **ADR-0003** aprovado | ✅ **ACEITO** |
+| 4 | Aparelhos reais: dois abaixo de API 33, um em Android 16, um em Android 17 | ✅ **disponíveis**; Documento 5 corrigido para exigir os quatro |
+| 5 | **Método de medição escrito e revisado antes da coleta** | ⏳ escrito (`metodo-de-medicao.md`); **falta a revisão e o aceite do fundador** |
+| 6 | Template de evidência (núcleo §9) | ✅ disponível em `docs/agentes/00-nucleo.md` |
+| 7 | **Timebox declarado** (alvo e limite duro, em semanas) — Doc 5, §2: *"fase sem timebox não inicia"* | ❌ **não existe** |
+| 8 | Servidor de teste | ⏳ a confirmar |
+| 9 | Conta no Play Console | ⏳ a confirmar |
+| 10 | Contas de teste em três operadoras | ⏳ a confirmar |
 
-## 4. Entregáveis de mesa — não dependem de hardware
+**Duas condições travam a partida formal:** a revisão do método (#5) e o timebox (#7). As
+condições #8 a #10 travam medições específicas (M10 e a sincronização do protótipo), não a fase
+inteira — os entregáveis de mesa e os ensaios de plataforma não dependem delas.
 
-Podem ser produzidos em paralelo à aquisição de aparelhos:
+## 3. Decisões tomadas em 2026-07-27
 
-- [ ] **Parecer escrito de classificação como aplicativo de monitoramento** — e ele vem **antes**
-      do ADR-0007, porque pode eliminar candidato de temporização por política
+| ID | Decisão | Resultado |
+|---|---|---|
+| D1 | Núcleo | `00-nucleo.md` v2.3 no repositório. **A hierarquia do §0 põe o Documento 4 no nível 3, acima dos Documentos 5, 2 e 1** — `CLAUDE.md` corrigido |
+| D2 | ADRs 0001, 0002 e 0003 | Aceitos, imutáveis a partir do aceite |
+| D3 | Medições do ARB4-007 | Incorporadas ao Documento 5: M12, M13, M14, com critérios de aceite próprios |
+| D4 | Faixa de intervalo de confirmação | **Valor provisório declarado: 15 min / 30 min / 60 min**, dono ADR-0005-A (núcleo §0) |
+| D5 | Matriz de aparelhos | Lacuna do Android 16 resolvida; Documento 5 corrigido para quatro aparelhos |
+| D6 | Seis itens do portão da ARB4 | Aplicados — ver `docs/auditoria/CHANGELOG-ARB4.md` |
+| D7 | Distribuição de versões do Android | Incorporada como M15, fechando o segundo critério do ADR-0002 |
+| D8 | Papéis | Confirmado pelo próprio template do núcleo §9: o agente prepara tudo e **não preenche resultado observado**; a coleta é de executor humano identificado |
+| D9 | Issues | Backlog de consistência convertido em issues do repositório |
+
+## 4. O timebox, e o número que o domina
+
+O Documento 5, §2 exige alvo e limite duro em semanas, definidos **antes** do início.
+O termo dominante é a **M1**, e ela é dominada pelo **máximo** da faixa de intervalo:
+
+| Bloco | Calendário estimado |
+|---|---|
+| **M1** — atraso de disparo, três pontos de intervalo, dois estados de bateria | **~23 dias** de coleta contínua |
+| M5, M8, M13 — consumo e heartbeat, em paralelo nos mesmos aparelhos | absorvido pela M1 |
+| M2, M3, M6, M7 — ensaios curtos e discretos | ~3 a 5 dias |
+| M9 — cota de job, Android 16 e 17 | ~2 dias |
+| M4, M14 — campo, exigem deslocamento | ~3 a 5 dias |
+| M10, M11, M15 — mesa e pesquisa, em paralelo | ~5 a 10 dias, sem hardware |
+| Entregáveis de loja e parecer de monitoramento | ~5 dias, sem hardware |
+
+**Alavanca declarada:** reduzir o máximo provisório de 60 para 30 min cortaria a M1 de ~23 para
+~14 dias. É decisão de produto, não de engenharia, e pertence ao ADR-0005-A.
+
+## 5. Entregáveis de mesa — não dependem de hardware
+
+- [ ] **Parecer escrito de classificação como aplicativo de monitoramento** — vem **antes** do
+      ADR-0007, porque pode eliminar candidato de temporização por política
 - [ ] Decisão sobre a flag `isMonitoringTool` e sobre a divulgação na descrição da loja
 - [ ] Matriz de permissões e políticas do Documento 2, §34.5 preenchida
 - [ ] Textos das declarações · roteiro do vídeo · texto de divulgação proeminente
@@ -71,22 +90,22 @@ Podem ser produzidos em paralelo à aquisição de aparelhos:
       SMS é custo de aquisição antes de ser custo de operação
 - [ ] Plano B de affordance, escrito **antes de contratar**, se o link for filtrado
 
-## 5. ADRs que a fase produz
+## 6. ADRs que a fase produz
 
 | ADR | Quando | Depende de |
 |---|---|---|
-| **0011 provisório** | durante a fase | M10 (entrega de SMS por operadora) + cotações |
+| **0011 provisório** | durante a fase | M10 + cotações |
 | **0007** temporização | após a medição | parecer de monitoramento (antes) + M1, M2, M3, M5, M9 |
 | **0008** recurso principal de localização em segundo plano | após o teste de listagem | verificação do formulário real no Play Console |
-| **0012** limiares de bateria e falso positivo | após a fase | M5, M8, M13, M14 |
+| **0012** limiares de bateria e falso positivo | após a fase | M5, M8, M13, **M14** |
 | **0005-B** `margem_de_rede` | após a fase | p99 da M1, por fabricante |
 
-## 6. Onde a fase termina
+## 7. Onde a fase termina
 
-Documento 5, Fase 0 — dezessete critérios de aceite, dos quais o último é o que sustenta a
-isenção de todos os outros:
+Documento 5, Fase 0 — vinte e um critérios de aceite, dos quais o último sustenta a isenção de
+todos os outros:
 
 > ☐ **nenhum arquivo promovido para a árvore de produção.**
 
-E as condições de interrupção, que podem encerrar o projeto em vez da fase, estão no §9 de
+As condições de interrupção, que podem encerrar o projeto em vez da fase, estão no §9 de
 `metodo-de-medicao.md`.

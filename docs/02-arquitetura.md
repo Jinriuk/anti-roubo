@@ -593,15 +593,15 @@ Toda operação mutante tem linha nesta tabela. Endpoint mutante sem linha é PR
 | **Alteração de parâmetro de temporização** | `PATCH /street-mode/sessions/{id}/timing` | `Idempotency-Key` do cliente; a resposta devolve o `policy_version` vigente, para o aparelho não aplicar localmente valor que o servidor rejeitou | 24 h |
 | **Atualização de instalação** | `PATCH /installations/{id}` | `Idempotency-Key` do cliente | 24 h |
 | **Exclusão de conta** | `DELETE /me` | `Idempotency-Key` do cliente; repetição devolve o estado do pedido já registrado, nunca segundo pedido | 30 dias |
-| **Heartbeat** | sem efeito acumulável por construção; repetição atualiza `last_seen_at` e nada mais | — |
-| **Acionamento manual de emergência** | `Idempotency-Key` do cliente, **gerada antes do primeiro envio** e reusada em todo retry | 24 h |
-| **Confirmação e encerramento de protocolo** | chave natural `(protocol_id, transição, actor)`; conflito resolvido pela precedência do §10.3, nunca por last-write-wins | 30 dias |
-| **Ciência do contato** | chave natural `(protocol_id, contact_id)` | 30 dias |
-| **Simulação de protocolo** | mesma regra do acionamento manual, mais o rate limit do §21.3 | 24 h |
-| Convite, concessão, revogação | `Idempotency-Key` do cliente | 24 h |
-| **Registro de token de push, transferência de aparelho** | `Idempotency-Key` do cliente | 24 h |
-| **Recuperação e step-up** | token de uso único, que já é a garantia | — |
-| Billing | id da notificação | 30 dias |
+| **Heartbeat** | `POST /street-mode/sessions/{id}/heartbeat` | sem efeito acumulável por construção; repetição atualiza `last_seen_at` e nada mais | — |
+| **Acionamento manual de emergência** | `POST /emergencies` | `Idempotency-Key` do cliente, **gerada antes do primeiro envio** e reusada em todo retry | 24 h |
+| **Confirmação e encerramento de protocolo** | `POST /emergencies/{id}/confirm`, `POST /emergencies/{id}/resolve` | chave natural `(protocol_id, transição, actor)`; conflito resolvido pela precedência do §10.3, nunca por last-write-wins | 30 dias |
+| **Ciência do contato** | `POST /emergencies/{id}/acknowledge` | chave natural `(protocol_id, contact_id)` | 30 dias |
+| **Simulação de protocolo** | `POST /emergencies/simulate` | mesma regra do acionamento manual, mais o rate limit do §21.3 | 24 h |
+| Convite, concessão, revogação | `POST /trusted-contacts/invites`, `POST /trusted-contacts/invites/{token}/accept`, `DELETE /trusted-contacts/{id}` | `Idempotency-Key` do cliente | 24 h |
+| **Registro de token de push, transferência de aparelho** | `POST /installations/{id}/push-token`, `POST /devices/transfer` | `Idempotency-Key` do cliente | 24 h |
+| **Recuperação e step-up** | `POST /auth/recovery/start`, `POST /auth/recovery/confirm`, `POST /auth/step-up` | token de uso único, que já é a garantia | — |
+| Billing | `POST /billing/google-play/notifications` | id da notificação | 30 dias |
 
 O caso mais sensível é o acionamento manual: é o caminho de emergência mais confiável do produto (Documento 1, §12), acionado por alguém em pânico, em rede ruim, com retry automático. Sem chave gerada **antes** do primeiro envio, dois envios viram dois protocolos e dois SMS.
 
@@ -662,7 +662,9 @@ assinatura = Sign_K_confirmacao(
 ```
 
 - **Proteção contra replay:** `event_dedup(installation_id, event_id)` (§19.5) já rejeita reenvio, e a linha de idempotência por `check_in_id` (§16.3) garante que uma assinatura capturada só satisfaz o check-in que ela nomeia, e só uma vez. Nenhum mecanismo novo, nenhuma tabela nova.
-- **Ordem:** `sequence` é monotônico por instalação e nunca reinicia (§16.2). O servidor rejeita assinatura cuja `sequence` não avance em relação ao `highest_sequence` conhecido para aquele `check_in_id`.
+- **Ordem (corrigido na 4ª rodada — ARB4-001).** Antirreplay e ordenação são controles distintos e não se confundem: o antirreplay é a alínea acima, e é suficiente. `sequence` **não é critério de rejeição**. A confirmação assinada é **aceita** quando o `check_in_id` está sem uso e a `sequence` está dentro da janela de idade máxima do §16.7; quando a `sequence` não for contígua, o servidor **registra lacuna** (§16.6) e segue aceitando. `sequence` é monotônico por instalação e nunca reinicia (§16.2), e `highest_sequence` é grandeza **por instalação**, nunca por `check_in_id`.
+
+  Motivo da correção: a redação anterior mandava rejeitar assinatura cuja `sequence` não avançasse "em relação ao `highest_sequence` conhecido para aquele `check_in_id`". Lida por `check_in_id`, a regra era vazia — a idempotência já admite uma única confirmação por `check_in_id`. Lida por instalação, rejeitava confirmação legítima fora de ordem, contra o §16.4, contra o **teste obrigatório** do §16.6 (enviar 1, 2, 4, 5; entregar o 3 atrasado e reconciliar) e contra o módulo 40 §2, que faz de desordem caso obrigatório para todo código de sync. O cenário concreto: o titular confirma o check-in *k* no metrô, confirma *k+1* ao sair, o outbox entrega *k+1* primeiro, e a confirmação *k* é recusada — justamente a confirmação de que a janela de reconciliação depende para fechar a `SUSPEITA`. O contato seria acionado por causa de quem confirmou corretamente duas vezes. Este transporte é declaradamente offline-first e fora de ordem (§16.1 e §17); rejeição por monotonicidade importava uma premissa que a arquitetura não tem. **Alínea correspondente obrigatória no ADR-0013.**
 
 **Encerramento de sessão, encerramento de protocolo e alteração de parâmetro de temporização — nonce do servidor.** Esses três já são online por natureza: o último exige step-up (§22.3) e os outros dois envolvem o servidor por definição. Nonce fresco, de uso único, obtido na mesma requisição. Aqui o nonce é grátis e é a proteção correta.
 
@@ -675,7 +677,9 @@ Mecanismo opcional que fortalece a confirmação sem custar a garantia local:
 3. O servidor aceita desafio **conhecido mas não corrente** enquanto `sequence` avança e o `check_in_id` está sem uso. Rejeita desafio desconhecido.
 4. **Ausência de desafio é válida** quando a instalação nunca registrou sessão no servidor — o caso da Fase 1 e da ativação em `COBERTURA_LOCAL`.
 
-Efeito: com rede em algum momento, o atacante consegue pré-assinar no máximo a confirmação seguinte, não uma sequência delas. Sem rede nunca, cai no mecanismo do §16.8.1, que é o piso.
+**Efeito, redigido no escopo exato do que a regra 3 entrega (corrigido na 4ª rodada — ARB4-002).** O desafio de sessão prova que a instalação já se comunicou com o servidor e **amarra a assinatura àquela sessão**. Ele **não** limita a pré-assinatura a um intervalo: com um desafio conhecido em mão, ainda que vencido, o atacante assina *k+1*, *k+2*, *k+3* — todos aceitos pela regra 3, porque cada um nomeia um `check_in_id` sem uso. O que limita a pré-assinatura continua sendo **a configuração da chave**: autenticação a cada uso, uma autenticação por assinatura (§16.8.3). Sem rede nunca, cai no mecanismo do §16.8.1, que é o piso.
+
+A redação anterior afirmava que "o atacante consegue pré-assinar no máximo a confirmação seguinte, não uma sequência delas" — controle mais forte que o controle, na seção que existe para corrigir exatamente esse defeito. A tensão é real e não se resolve por redação: aceitar desafio vencido é **necessário** para a garantia local, e é o que destrói o efeito pretendido. Limitar a aceitação a uma janela de *n* desafios atrás é a alternativa, e é **decisão de desenho — cabe ao ADR-0013**, não a este documento.
 
 ### 16.8.3 O que a assinatura prova, e o que não prova
 
@@ -741,7 +745,7 @@ Componente que dá existência à garantia externa.
 
 **2a. Limite do servidor sobre os parâmetros vindos do aparelho.** Vale para `expected_next_checkin_at` **e para `grace_seconds`**: os dois vêm do aparelho e os dois estendem o prazo pelo mesmo efeito. Regra:
 
-- ambos são **limitados** pelo `policy_version` vigente **no servidor**; valor além do máximo é rejeitado com código estável e o prazo anterior permanece armado;
+- ambos são **limitados** pelo `policy_version` vigente **no servidor**; valor além do máximo é rejeitado com código estável (`TIMING_PARAM_OUT_OF_POLICY`) e o prazo anterior permanece armado. Isto vale para parâmetro submetido em **sessão registrada**; a reconciliação inicial de uma sessão armada offline segue a regra própria do §18.7.2, que reduz ao limite em vez de rejeitar;
 - **aumento** de intervalo ou de graça só vale **a partir da confirmação seguinte**; a sessão em curso mantém o prazo já registrado. **Redução** vale imediatamente. Assimetria deliberada, na direção segura;
 - alterar qualquer parâmetro de temporização é ação de **step-up** (§22.3) e de reautenticação, e durante sessão ativa gera evento `SECURITY` mais notificação por canal externo, conforme o controle de "mudanças sensíveis" do Documento 3, §13.4.
 
@@ -781,9 +785,18 @@ Existia como referência em três regras — limite de parâmetros de temporiza�
 
 **Conteúdo.** Um registro versionado, servido pelo backend, com os limites que o servidor aceita: intervalo de confirmação mínimo e máximo; `grace_seconds` máximo; cadência de heartbeat; `janela_de_reconciliacao`; `margem_de_rede` por fabricante; tetos de tentativa por canal e de duração de `ALERTANDO`; limites absolutos da guarda de anomalia (§18.7.1).
 
-**Versionamento.** Inteiro monotônico. Mudança de qualquer limite gera versão nova; versões antigas continuam válidas para sessões já registradas sob elas, e é por isso que a sessão persiste o `policy_version` com que foi armada (§18.7, item 1). Alteração de limite **nunca** encurta o prazo de uma sessão em curso.
+**Versionamento.** Inteiro monotônico. Mudança de qualquer limite gera versão nova; versões antigas continuam válidas para sessões já registradas sob elas, e é por isso que a sessão persiste o `policy_version` com que foi armada (§18.7, item 1). Alteração de limite **nunca** encurta o prazo de uma sessão **registrada no servidor**.
 
-**Como o aparelho descobre os limites.** Devolvidos no registro da sessão e em toda resposta de confirmação, junto com o `desafio_de_sessao` (§16.8.2). Offline, o aparelho opera com a última versão conhecida e, na primeira comunicação, reconcilia: valor local acima do limite vigente é reduzido ao limite, com evento registrado e aviso ao usuário. Nunca o contrário.
+**Os dois regimes, que a redação anterior confundia (corrigido na 4ª rodada — ARB4-003).** Sessão **registrada** e sessão **armada offline** não recebem o mesmo tratamento, e é o recorte que faltava:
+
+| Regime | Regra | Onde |
+|---|---|---|
+| **Sessão registrada no servidor** | O prazo já armado é **imutável** por mudança de limite. Parâmetro novo submetido além do máximo é **rejeitado** com `TIMING_PARAM_OUT_OF_POLICY` e o prazo anterior permanece armado | §18.7, item 2a |
+| **Sessão armada offline, ainda não registrada** | Na primeira comunicação há **reconciliação**, e ela **pode encurtar**: valor local acima do limite vigente é reduzido ao limite, com evento registrado e aviso ao usuário. **Nunca abaixo de um prazo já vencido**, e nunca o contrário (o servidor não estende por reconciliação) | este parágrafo |
+
+Sem esse recorte, as três regras eram incompatíveis entre si e o módulo 40 §2 exigia como teste obrigatório **duas asserções que se excluem** no mesmo cenário — uma suíte que não podia passar. O caso concreto: o titular ativa em `COBERTURA_LOCAL` com intervalo de 8 h sob o `policy_version` em cache, o servidor vigente limita a 4 h, e na primeira comunicação o aparelho reduz. O aviso mitiga; o prazo mudou — e essa é a resposta correta, porque a sessão nunca esteve sob a proteção que o versionamento oferece.
+
+**Como o aparelho descobre os limites.** Devolvidos no registro da sessão e em toda resposta de confirmação, junto com o `desafio_de_sessao` (§16.8.2). Offline, o aparelho opera com a última versão conhecida e reconcilia na primeira comunicação, conforme a linha "sessão armada offline" da tabela acima.
 
 **Fase 1.** Sem backend, existe um `policy_version` local de build, com os mesmos campos e valores provisórios do ADR-0005-A. Isso mantém a Fase 1 implementável sem inventar mecanismo e sem simular servidor.
 
@@ -1246,7 +1259,7 @@ As fases, critérios de aceite, gates e condições de bloqueio são definidos *
 | 0002 | `minSdk` 30 provisório e `targetSdk` 36 — decidido por dados de mercado **e** por custo da faixa de ramificação (§35) | Antes da Fase 0 |
 | 0003 | Estrutura descartável da Fase 0 | Antes da Fase 0 |
 | 0004 | Hierarquia de chaves locais e política de backup | Antes da Fase 1 |
-| 0005 | Autoridade de escalonamento e parâmetros do vigilante. **Dois blocos:** 0005-A, antes da Fase 1, com os parâmetros que nascem provisórios declarados como tais (cadência de heartbeat, silêncio máximo, tetos de `ALERTANDO`, teto do §12.5, limites absolutos da guarda); 0005-B, após a Fase 0, fechando os que dependem de medição (`margem_de_rede`) | 0005-A antes da Fase 1; 0005-B após a Fase 0 |
+| 0005 | Autoridade de escalonamento e parâmetros do vigilante. **Dois blocos:** 0005-A, antes da Fase 1, com os parâmetros que nascem provisórios declarados como tais — cadência de heartbeat, silêncio máximo, tetos de `ALERTANDO`, teto do §12.5, limites absolutos da guarda, **`grace_seconds` provisório (§12.5, termo 2)**, **`janela_de_reconciliacao` de 180 s (§12.5, termo 6)**, **teto do termo 9 do §12.5** e **faixa provisória de intervalo de confirmação, mínimo e máximo (§12.5, termo 1)**; 0005-B, após a Fase 0, fechando os que dependem de medição (`margem_de_rede`) | 0005-A antes da Fase 1; 0005-B após a Fase 0 |
 | 0006 | Autenticação, sessão própria e step-up | Antes da Fase 2 |
 | 0007 | **Arquitetura de temporização** | Após a medição da Fase 0 |
 | 0008 | Função única declarada para localização em segundo plano | Após o teste de listagem da Fase 0 |

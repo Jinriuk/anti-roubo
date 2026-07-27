@@ -88,10 +88,18 @@ Cada fase recebe **alvo** e **limite duro** em semanas de calendário do fundado
 | Latência de execução de worker com o serviço em primeiro plano ativo versus sem ele, em Android 16 e 17 | p50/p95, por fabricante — mede o efeito da cota de jobs |
 | Entrega de SMS com link curto, por operadora | taxa de entrega e tempo até entrega |
 | Parcela do público-alvo sem tela de bloqueio segura | dado de mercado, para a decisão pendente do Documento 2, §14.3 |
+| **Latência da confirmação: do prompt à assinatura verificada**, com biometria **e** com credencial do aparelho | p50, p95 e p99, por fabricante e por condição |
+| **Custo de bateria de N confirmações por sessão**, na cadência provisória | % de carga por confirmação e por sessão, por fabricante |
+| **Taxa de confirmação dentro do prazo**, sob as condições adversas da matriz de campo | taxa com **n declarado** e motivo de falha registrado — insumo do ADR-0012 |
+| **Distribuição de versões do Android no público-alvo** | dado de mercado, com n e fonte — é o segundo critério que o ADR-0002 exige (Documento 2, §39) |
+
+*Acrescentadas na 4ª rodada.* As três primeiras vêm do achado **ARB4-007**: o mecanismo do §16.8 exige autenticação a cada confirmação, várias vezes por sessão, com o celular no bolso, no metrô, com a mão molhada — e a **taxa de confirmação dentro do prazo** governa o falso positivo **externo**, que é o único que bloqueia release (módulo 40, §6). O ADR-0012 fecha esse limiar com dado desta fase, e o dado não estava sendo coletado. A quarta fecha o segundo critério do ADR-0002, que não tinha fonte prevista em nenhuma fase; é a mesma coleta, na mesma amostra, da linha anterior.
 
 ### Dependências
 
-Três ou mais aparelhos reais (Samsung, Motorola, Xiaomi ou Redmi), **dois deles abaixo de API 33** — um no `minSdk` provisório 30 —, e um no Android atual, que hoje é **17**; servidor de teste; conta no Play Console; contas de teste em três operadoras; ADR-0001, 0002 e 0003 aprovados.
+Quatro ou mais aparelhos reais (Samsung, Motorola, Xiaomi ou Redmi), **dois deles abaixo de API 33** — um no `minSdk` provisório 30 —, **um em Android 16 e um em Android 17**; servidor de teste; conta no Play Console; contas de teste em três operadoras; ADR-0001, 0002 e 0003 aprovados.
+
+*Corrigido na 4ª rodada.* A dependência anterior declarava tres aparelhos, com apenas um no Android atual — e a medicao de latencia de worker exige **Android 16 e 17, por fabricante**. Com a matriz anterior a medicao nao era executavel em nenhuma das duas versoes: nao havia aparelho em 16, e um unico aparelho em 17 nao produz comparacao por fabricante.
 
 ### Critérios de aceite
 
@@ -112,6 +120,10 @@ Três ou mais aparelhos reais (Samsung, Motorola, Xiaomi ou Redmi), **dois deles
 - ☐ parecer de monitoramento concluído **antes** da proposta do ADR-0007, e decisão sobre `isMonitoringTool` registrada;
 - ☐ ADR-0007 (temporização) e ADR-0008 (recurso principal declarado de localização em segundo plano) propostos com base nas medições;
 - ☐ ADR-0011 provisório (provedor de SMS e cascata) proposto;
+- ☐ **latência da confirmação medida do prompt à assinatura verificada, com biometria e com credencial do aparelho**;
+- ☐ **taxa de confirmação dentro do prazo medida sob condições adversas, com n e motivo de falha declarados**, e registrada como insumo do ADR-0012;
+- ☐ **distribuição de versões do Android no público-alvo levantada**, fechando o segundo critério do ADR-0002;
+- ☐ **`VERIFICAR:` do Documento 2, §16.8.3 confirmado em aparelho**: `setUserAuthenticationParameters` com tempo zero implica autenticação por operação criptográfica, e não por sessão de chave — toda a garantia contra pré-assinatura repousa nisso;
 - ☐ limiares provisórios de bateria e de falso positivo propostos (ADR-0012). **Este item é `[ABERTO — FASE 0]`** e só se fecha por ADR, com base em medição: nenhum agente adota número definitivo antes disso;
 - ☐ nenhum arquivo promovido para a árvore de produção.
 
@@ -160,7 +172,7 @@ Conta, backend, contato, painel, cobrança, escalonamento externo.
 - ☐ **uma autenticação produz exatamente uma assinatura** (chave com autenticação a cada uso), comprovado em teste instrumentado;
 - ☐ `K_dados` sobrevive a novo cadastro biométrico; `K_leitura` é invalidada e o app pede revinculação sem falhar em silêncio;
 - ☐ **amostra de localização pendente é lida e enviada por worker sem autenticação, e apagada no ACK** — sem reencriptação e sem cópia sob `K_leitura`;
-- ☐ **todas as transições da tabela de cobertura (Documento 2, §11.2) têm teste**, e o texto exibido corresponde ao estado;
+- ☐ **todas as transições da tabela de cobertura alcançáveis nesta fase — linhas 6 e 7 do Documento 2, §11.2 — têm teste**, e o texto exibido corresponde ao estado. As linhas 1 a 5 exigem servidor e são obrigação da **Fase 2**. *(Corrigido na 4ª rodada — ARB4-004: o critério anterior exigia "todas as transições", e cinco das sete são inalcançáveis nesta fase, porque o escopo fixa `COBERTURA_INDISPONIVEL`, que a linha 7 declara mutuamente exclusivo, e exclui o backend. Cumprir o critério exigiria simular servidor — proibido pelo núcleo §5 e pelo §18.7.2 — ou declarar atendido com duas de sete, que é a violação mais grave do núcleo §3.2.)*;
 - ☐ **ação de notificação abre a confirmação e nunca a conclui**;
 - ☐ prazo sobrevive a reboot e a ajuste de relógio;
 - ☐ nenhum estado crítico só em memória;
@@ -210,6 +222,8 @@ Conta, backend, contato, painel, cobrança, escalonamento externo.
 - ☐ **troca de aparelho com sessão ativa e com protocolo aberto não desarma o vigilante**;
 - ☐ **confirmação sem assinatura válida é rejeitada; `confirmation_type` é derivado da verificação, não declarado pelo cliente**;
 - ☐ **evento acima da idade máxima é rejeitado com `EVENT_TOO_OLD` e registra lacuna** (Documento 2, §16.7);
+- ☐ **as transições 1 a 5 da tabela de cobertura (Documento 2, §11.2) têm teste** — as que exigem servidor e por isso não eram alcançáveis na Fase 1 (ARB4-004);
+- ☐ **confirmação assinada fora de ordem é aceita, não rejeitada**: `sequence` não contígua registra lacuna e a confirmação vale, desde que o `check_in_id` esteja sem uso e o evento esteja dentro da idade máxima (Documento 2, §16.8.1, alínea "Ordem" — ARB4-001);
 - ☐ **decisão registrada de acionar ou não o ADR-0009 com base no resultado do teste de carga**;
 - ☐ todo endpoint com identificador de recurso tem teste negativo de autorização;
 - ☐ OpenAPI corresponde ao código;

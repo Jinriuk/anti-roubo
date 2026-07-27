@@ -1,7 +1,7 @@
 # Fase 0 — Método de medição
 
 **Estado:** PROPOSTO — **exige revisão e aceite antes de qualquer coleta**
-**Data:** 2026-07-26
+**Data:** 2026-07-26 · **Atualizado:** 2026-07-27, com as decisões D1 a D9 do fundador
 **Autor:** agente. Não é o executor das medições.
 
 > **Por que este documento existe antes de qualquer código.**
@@ -9,10 +9,12 @@
 > declarado depois por quem mediu"*. Medição acrescentada depois custa recoleta em aparelho
 > físico — por isso a lista precisa estar fechada antes da primeira sessão de coleta.
 
-> ⚠️ **Este método não pode ser executado como está.** Cinco condições precisam ser resolvidas
-> antes, e estão reunidas em `docs/fase-0/README.md`. As mais duras: o **template de evidência
-> do núcleo §9** não existe no repositório, e o **intervalo de check-in a medir** depende de um
-> parâmetro cujo dono é o ADR-0005-A.
+> ✅ **As condições que bloqueavam este método foram resolvidas em 2026-07-27.** O núcleo entrou
+> no repositório e o **template de evidência (§9)** está disponível; a **faixa de intervalo** foi
+> declarada como valor provisório com ADR dono; a **matriz de aparelhos** foi corrigida e o
+> hardware existe; as medições do ARB4-007 foram incorporadas ao Documento 5.
+> Resta a **revisão e o aceite deste método pelo fundador**, e a definição do **timebox da fase**
+> — que o §4 dimensiona.
 
 ---
 
@@ -20,7 +22,8 @@
 
 | Papel | Quem | Regra |
 |---|---|---|
-| **Executor** | humano identificado, nomeado por medição | Documento 5, Fase 0: *"cada medição usa o template do Documento 4, §9, com executor humano identificado"*. Um agente **não** é executor: não tem aparelho, não observa bateria e não pode atestar o que não presenciou |
+| **Executor** | humano identificado, nomeado por medição | O template do núcleo §9 é literal: *"Executor: (humano identificado; **o agente não executa teste físico e não preenche resultado observado**)"*. Não é interpretação nem preferência — é o campo do formulário |
+| **Agente** | prepara tudo o que antecede a coleta | Escreve o método, o instrumento de `spike/`, os testes automatizáveis, os entregáveis de mesa e as propostas de ADR. Verifica exaustivamente o que é verificável sem aparelho. **Não preenche resultado observado** |
 | **Revisor do método** | fundador | Revisa e aceita **este documento** antes da coleta. É o que separa método de racionalização |
 | **Redator do instrumento** | agente | Escreve o código de `spike/` que produz os números, sob ADR-0003 |
 | **Arquivista** | executor | Registra em `docs/evidencias/` com o template do núcleo §9, e o comportamento por marca em `docs/fabricantes/<marca>.md` |
@@ -30,31 +33,22 @@ como estimativa, nem como "provisório". Célula sem coleta fica declarada vazia
 
 ## 2. Matriz de aparelhos
 
-Dependências declaradas (Documento 5, Fase 0): três ou mais aparelhos reais — Samsung, Motorola,
-Xiaomi ou Redmi —, **dois deles abaixo de API 33**, um no `minSdk` provisório 30, e um no
-Android atual, que hoje é **17**.
-
-Configuração mínima que satisfaz a dependência:
+Dependências declaradas (Documento 5, Fase 0, corrigido na 4ª rodada): **quatro ou mais**
+aparelhos reais — Samsung, Motorola, Xiaomi ou Redmi —, **dois deles abaixo de API 33**, um no
+`minSdk` provisório 30, **um em Android 16 e um em Android 17**.
 
 | ID | Marca | Android / API | Papel |
 |---|---|---|---|
 | A | Samsung intermediário | **11 (API 30)** | `minSdk`; caminho de pré-condição de notificação sem `POST_NOTIFICATIONS`; `fullBackupContent` |
 | B | Motorola intermediário | **12 ou 12L (API 31/32)** | segundo aparelho abaixo de API 33; `dataExtractionRules` já existe |
-| C | Xiaomi ou Redmi | **17 (API 37)** | Android atual; gerenciador de tarefas mais agressivo do conjunto |
+| C | Samsung, Motorola, Xiaomi ou Redmi | **16 (API 36)** | primeira versão com cota de job a partir de FGS — metade da M9 |
+| D | Xiaomi ou Redmi | **17 (API 37)** | Android atual; gerenciador de tarefas mais agressivo do conjunto |
 
-### ⚠️ Lacuna da matriz — bloqueia a medição M9
-
-A medição **M9** exige *"latência de execução de worker com o serviço em primeiro plano ativo
-versus sem ele, **em Android 16 e 17**, p50/p95, **por fabricante**"*.
-
-Com os três aparelhos acima:
-
-- **não existe aparelho em Android 16** — a medição não é executável nessa versão;
-- existe **um** aparelho em Android 17 — "por fabricante" não é executável nessa versão.
-
-Isso não é interpretação: as dependências declaram três aparelhos e a medição pede duas versões
-por fabricante. Registrado em `docs/consistencia/backlog.md`, item **E1**. Resolver antes da
-compra de hardware — depois é dinheiro gasto na configuração errada.
+✅ **Lacuna resolvida.** A matriz anterior declarava três aparelhos com apenas um no Android
+atual, e a M9 exige **Android 16 e 17**. Com aquela configuração a medição não era executável em
+nenhuma das duas versões. O Documento 5 foi corrigido e o hardware existe. A comparação "por
+fabricante" da M9 fica limitada aos aparelhos C e D e a limitação é declarada na evidência, em
+vez de simulada.
 
 ### Estados de bateria
 
@@ -83,44 +77,56 @@ configurado` · `data e hora de início e fim, em UTC` · `executor`.
 A medição **M1** exige **p99**, e o p99 é o parâmetro mais caro do projeto: ele define a
 `margem_de_rede` do vigilante (Documento 2, §18.7) e entra no orçamento de latência do §12.5.
 
-**Amostra por célula:** mínimo **n = 300**, preferível **n = 500**.
-Com n = 300, o p99 é o 3º pior valor observado — estimativa frágil, e o intervalo de confiança
-precisa ser declarado junto com o número. Com menos de 300 não existe p99, existe pior caso, e
+### Faixa de intervalo — valor provisório declarado
+
+O intervalo de confirmação é escolhido pelo usuário entre os limites do `policy_version`
+(Documento 2, §12.5, termo 1), e esses limites pertencem ao **ADR-0005-A**, cujo prazo é "antes
+da Fase 1" — depois desta medição. O núcleo §0 resolve o impasse: *"onde uma regra precisar de
+número antes do ADR, o número é **valor provisório declarado como tal**, com o ADR dono
+identificado."*
+
+> **Faixa provisória: mínimo 15 min · padrão 30 min · máximo 60 min. Dono: ADR-0005-A.**
+> Não é decisão fechada e não vira permanente por uso. Alargar o máximo depois **obriga
+> re-medir no novo máximo**, porque o p99 não se extrapola.
+
+Justificativa da faixa: abaixo de 15 min o produto entra no risco que o Documento 1, §8.3
+descreve — o usuário ignora, desativa ou confirma sem atenção —, agravado por este desenho exigir
+**autenticação a cada confirmação**. Acima de 60 min a janela de detecção passa a dominar a
+promessa do produto. 30 min como padrão é o ponto em que uma sessão típica de deslocamento
+produz poucas confirmações.
+
+### Amostra e calendário
+
+**Amostra por célula:** **n ≥ 200**, com intervalo de confiança declarado ao lado do número.
+Com n = 200 o p99 é o 2º pior valor observado — estimativa frágil, e a fragilidade é declarada,
+não escondida. O piso de 200 (e não 300) é defensável **porque o próprio Documento 5 declara que
+o p99 do spike não é o p99 do produto** — o mecanismo de produção nasce diferente e a Fase 4
+**re-mede com o código de produção**. Abaixo de 200 não existe p99, existe pior caso, e
 chamá-lo de p99 seria evidência inventada.
 
-**Células de M1:** 3 fabricantes × 2 estados de bateria = **6**.
+**Onde o p99 é exigido:** apenas no **máximo da faixa (60 min)**. Intervalo mais longo produz
+janela de inatividade mais profunda e, portanto, o pior atraso — que é o que a `margem_de_rede`
+precisa cobrir. Nos demais pontos bastam p50 e p95, com n ≥ 100.
 
-**Custo de calendário.** O relógio é o intervalo de check-in, porque cada intervalo produz uma
-amostra. Os dois estados de bateria são sequenciais no mesmo aparelho; os três aparelhos correm
-em paralelo:
+**Células:** 3 fabricantes × 2 estados de bateria. Os estados são sequenciais no mesmo aparelho;
+os aparelhos correm em paralelo.
 
-| Intervalo medido | 300 amostras | 2 estados, sequenciais | Calendário total |
-|---|---|---|---|
-| 15 min | 75 h | 150 h | **~6,3 dias** de coleta contínua |
-| 30 min | 150 h | 300 h | **~12,5 dias** |
-| 60 min | 300 h | 600 h | **~25 dias** |
+| Ponto | Estatística | n | 2 estados, sequenciais | Calendário |
+|---|---|---|---|---|
+| 60 min (máximo) | p50, p95, **p99** | 200 | 400 h | **~16,7 dias** |
+| 30 min (padrão) | p50, p95 | 100 | 100 h | ~4,2 dias |
+| 15 min (mínimo) | p50, p95 | 100 | 50 h | ~2,1 dias |
+| | | | **total** | **~23 dias de coleta contínua** |
 
 > **Consequência para o timebox.** O Documento 5, §2 determina que **fase sem timebox não
-> inicia**. O timebox da Fase 0 é dominado por este número, e este número é dominado pela
-> escolha do intervalo. Definir o timebox antes de fixar o intervalo é definir um prazo que a
-> própria fase não pode cumprir.
+> inicia**. A M1 é o termo dominante do timebox da Fase 0, e ela é dominada pelo **máximo** da
+> faixa. Reduzir o máximo provisório de 60 para 30 min cortaria a M1 de ~23 para ~14 dias. É a
+> alavanca que o fundador tem, e ela é de produto, não de engenharia.
 
-### ⚠️ Dependência de ordem — o intervalo não pode ser escolhido aqui
-
-Não é legítimo medir num intervalo curto e extrapolar para um longo: o comportamento do
-agendador muda com a duração da janela de inatividade, e é exatamente esse efeito que a
-medição existe para capturar.
-
-O intervalo de confirmação é escolhido pelo usuário **entre os limites do `policy_version`**
-(Documento 2, §12.5, termo 1), e esses limites — intervalo mínimo e máximo — são propriedade do
-**ADR-0005-A**, cujo prazo declarado é "antes da Fase 1", isto é, **depois** desta medição.
-
-Sem a faixa declarada, este método não pode fixar em que intervalos medir. Ver decisão **D6**
-em `docs/fase-0/README.md`.
-
-**Proposta do método, se a faixa for declarada:** medir nos **dois extremos** da faixa
-provisória, mais um ponto intermediário, e reportar p50/p95/p99 por ponto — não uma média entre
-eles.
+**Não extrapolar.** Medir num intervalo curto e projetar para um longo é inválido: o
+comportamento do agendador muda com a duração da janela de inatividade, e é exatamente esse
+efeito que a medição existe para capturar. Reportar p50/p95/p99 **por ponto**, nunca uma média
+entre pontos.
 
 ## 5. Medições obrigatórias
 
@@ -272,15 +278,12 @@ diz "por fabricante e por estado de bateria" — categorização registrada como
 
 ---
 
-## 6. Medições exigidas pela auditoria e ainda ausentes do Documento 5
+## 6. Medições acrescentadas na 4ª rodada
 
-O achado **ARB4-007** identifica três medições que a Fase 0 precisa fazer e que a tabela do
-Documento 5 não contém. A ARB4 as tornou **condição para iniciar a fase**, porque medição
-acrescentada depois do método custa recoleta.
-
-**Incluí-las exige editar o Documento 5**, que é fonte única de escopo e evidência — e isso é
-decisão do fundador, não edição de agente. Ver decisão **D2** em `docs/fase-0/README.md`.
-Especificação pronta, para o caso de aceite:
+✅ **Incorporadas ao Documento 5 em 2026-07-27** (decisões D3 e D7 do fundador). Não são mais
+"ausentes": M12, M13, M14 e M15 constam da tabela de medições obrigatórias da Fase 0 e têm
+critério de aceite próprio. Esta seção passa a ser a especificação operacional delas, no mesmo
+padrão das onze anteriores.
 
 ### M12 · Latência da confirmação: do prompt à assinatura verificada
 
@@ -314,11 +317,18 @@ o celular no bolso, no metrô, com a mão molhada.
   medido. O número tem viés otimista **por construção**, e a evidência declara isso — o número
   real só aparece no Beta A.
 
-### M15 · Distribuição de versões do Android no público-alvo — proposta adicional
+### M15 · Distribuição de versões do Android no público-alvo
 
-Não vem da ARB4. Vem do **ADR-0002**, cujo segundo critério — dados de mercado brasileiro —
-não tem fonte. É a **mesma coleta, na mesma amostra, com o mesmo instrumento da M11**, e custa
-uma linha a mais no questionário. Sem ela, o `minSdk` é decidido por default.
+Não vem da ARB4. Vem do **ADR-0002**, cujo segundo critério — dados de mercado brasileiro — não
+tinha fonte prevista em nenhuma fase. É a **mesma coleta, na mesma amostra, com o mesmo
+instrumento da M11**, e custa uma linha a mais no questionário.
+
+- **O que é levantado:** distribuição de versões do Android entre adultos de grandes centros
+  urbanos usuários de banco digital — não a distribuição do Brasil em geral, e não a mundial.
+- **Saída:** percentual por faixa de API, **com n e fonte declarados**, com destaque para a
+  fração abaixo de **API 33**, que é o corte que o ADR-0002 revisará.
+- **Para que serve:** fecha o segundo critério do Documento 2, §39 antes da revisão pós-Fase 0
+  do `minSdk`. Enquanto não existir, o `minSdk` 30 permanece escolha por default.
 
 ---
 
@@ -349,9 +359,12 @@ A ordem não é preferência: há uma dependência declarada que a inverte.
 
 ## 8. Registro e arquivamento
 
-- Cada medição gera um registro no **template do núcleo §9** — que **não está no repositório**
-  (ver `docs/agentes/00-nucleo.AUSENTE.md`). Este método define o **conteúdo**; o **formato** é
-  do núcleo e não pode ser inventado aqui.
+- Cada medição gera um registro no **template do núcleo §9**, que está disponível em
+  `docs/agentes/00-nucleo.md`. Colar preenchido na PR e arquivar em `docs/evidencias/`. O
+  template exige, entre outros: nível, fase e item do Documento 5, **status declarado
+  (IMPLEMENTADA | NÃO IMPLEMENTADA)**, executor humano identificado, aparelho, cenário
+  executado, resultado **esperado** e **observado** em campos separados, divergências,
+  limitações conhecidas e decisão.
 - Resultado arquivado em `docs/evidencias/`, com data e versão.
 - Comportamento divergente por marca vai para `docs/fabricantes/<marca>.md`, com aparelho e
   versão testados.

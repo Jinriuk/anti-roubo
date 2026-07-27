@@ -41,9 +41,7 @@ Regras:
 - **Eventos AUDIT: a lista canônica é o Documento 3, §34.1.** Este módulo não mantém cópia editável. A cópia abaixo é **gerada** e validada automaticamente contra a origem (núcleo §11); se estiver divergente, o build falha e a origem prevalece.
 
 <!-- gerado de Documento 3, §34.1 — validado em CI; não editar aqui -->
-> login; logout; MFA; recuperação; contato incluído e removido; localização consultada; protocolo aberto, escalado, retido, liberado e encerrado; ciência de contato; exportação; exclusão; acesso de suporte; mudança de permissão; **rotação de chave**; **alteração administrativa**; liberação manual de protocolo retido, com operador e motivo.
-
-Acrescentam-se, por força das correções ARB2 e já constantes da origem ou dela derivados: alteração de parâmetro de temporização da sessão; prazo suprimido por indisponibilidade própria, com o id da janela.
+> login; logout; MFA; recuperação; contato incluído e removido; localização consultada; protocolo aberto, escalado, retido, liberado e encerrado; ciência de contato; exportação; exclusão; acesso de suporte; mudança de permissão; **rotação de chave**; **alteração administrativa**; liberação manual de protocolo retido, com operador e motivo; **alteração de parâmetro de temporização da sessão**; **prazo suprimido por indisponibilidade própria, com o id da janela**.
 
 - Registro append-only com actor, action, resource, timestamp, resultado, origem e `correlation_id`.
 

@@ -25,11 +25,11 @@ E a consequência que atravessa o produto inteiro:
 
 | | |
 |---|---|
-| **Fase corrente** | Fase 0 — **não iniciada.** Pré-condições em `docs/fase-0/README.md` |
+| **Fase corrente** | Fase 0 — **pronta para iniciar**, faltando revisão do método e timebox. Ver `docs/fase-0/README.md` |
 | **Código de produção** | nenhum. Não existe `android/`, `backend/` nem `spike/` |
-| **Documentação** | 12 dos 13 artefatos no repositório. **`docs/agentes/00-nucleo.md` ausente** |
-| **ADRs** | 0001, 0002 e 0003 **propostos**; nenhum aceito |
-| **Congelamento da documentação** | não concedido (relatório ARB4) — 6 itens no portão |
+| **Documentação** | corpus completo no repositório, incluindo o núcleo v2.3 |
+| **ADRs** | 0001, 0002 e 0003 ✅ **aceitos**. 0004, 0005-A e 0013 pendentes (pré-condição da Fase 1) |
+| **Portão da ARB4** | ✅ os 6 itens aplicados — ver `docs/auditoria/CHANGELOG-ARB4.md` |
 
 ## Documentação
 
@@ -41,7 +41,7 @@ Toda a documentação vive em `docs/` e muda por PR mais ADR, como qualquer cód
 | `docs/02-arquitetura.md` | Documento 2 — Arquitetura Técnica |
 | `docs/03-seguranca.md` | Documento 3 — Segurança, Privacidade e Ameaças |
 | `docs/05-roadmap.md` | Documento 5 — Roadmap, Critérios de Aceite e Matriz de Evidências |
-| `docs/agentes/` | Documento 4 — Regras de Engenharia (README + módulos 10 a 50) |
+| `docs/agentes/` | Documento 4 — Regras de Engenharia (**núcleo** + README + módulos 10 a 50) |
 | `docs/adr/` | Decisões arquiteturais |
 | `docs/fase-0/` | Método de medição e situação da Fase 0 |
 | `docs/consistencia/` | Backlog de divergências entre documentos |

@@ -107,7 +107,7 @@ Sobre a confirmação de check-in, a promessa é redigida no escopo exato do que
 
 **8.1 Humanos:** segurança física do usuário e dos contatos, autonomia, privacidade, liberdade de movimento, reputação, integridade psicológica.
 
-**8.2 Digitais:** conta, credenciais, sessões, chaves `K_dados` e `K_leitura`, PIN interno, tokens, códigos de recuperação, eventos, configurações, histórico, **identidade de instalação**.
+**8.2 Digitais:** conta, credenciais, sessões, chaves `K_dados`, `K_leitura` e **`K_confirmacao`**, tokens, códigos de recuperação, eventos, configurações, histórico, **identidade de instalação**. O PIN interno deixou de ser ativo criptográfico: não é chave e não desbloqueia chave (§28.2).
 
 **8.3 Dados de localização:** localização atual, última localização, áreas seguras, endereço residencial, trabalho, rotinas, trajetos, velocidade, horários. **Localização é o ativo de maior criticidade do sistema, e o histórico local no aparelho é o mais exposto** (§26.5).
 
@@ -260,7 +260,7 @@ Desativar o Modo Rua; **confirmar check-ins indefinidamente para impedir o escal
 
 ## 13.3 Controles obrigatórios
 
-- **Confirmação de check-in exige confirmação forte:** biometria ou PIN interno. Toque simples não conclui um check-in. Motivo: o agressor com o aparelho desbloqueado pode tocar; não pode autenticar. O método usado é registrado em `confirmation_type` e exibido ao titular — "confirmado com biometria" não é a mesma informação que "confirmado com toque".
+- **Confirmação de check-in exige confirmação forte:** biometria **ou o credencial de tela de bloqueio do aparelho**, e a confirmação é **assinada** por `K_confirmacao` (Documento 2, §16.8). Toque simples não conclui um check-in. **O PIN interno do aplicativo não satisfaz esta exigência** — ver §28.2, que detalha por quê: um segredo do aplicativo não satisfaz a exigência de autenticação de uma chave do Keystore. Motivo: o agressor com o aparelho desbloqueado pode tocar; não pode autenticar. O método usado é registrado em `confirmation_type` e exibido ao titular — "confirmado com biometria" não é a mesma informação que "confirmado com toque".
 - **Existe sempre um caminho de confirmação quando a biometria está indisponível após reinício** — cenário comum, porque muitos aparelhos só liberam biometria após o primeiro desbloqueio por PIN do sistema. Esse caminho é o **credencial de tela de bloqueio do aparelho**, aceito pela chave (Documento 2, §14.3). Não é o PIN interno do aplicativo: um segredo do aplicativo não satisfaz a exigência de autenticação de uma chave do Keystore, e a versão 2.0 especificava um mecanismo que não existe. Sem esse caminho, o usuário ficaria impedido de confirmar justamente no cenário de reboot.
 - **Parâmetros de temporização são limitados no servidor e alterá-los é ação de step-up** (Documento 2, §18.7, item 2a): `expected_next_checkin_at` e `grace_seconds` vêm do aparelho, e ambos estendem o prazo pelo mesmo efeito. Aumento vale só a partir da confirmação seguinte; redução vale de imediato; alteração em sessão ativa gera evento `SECURITY` e aviso por canal externo. Sem isso, a confirmação forte protege a porta e deixa a janela aberta.
 - Reautenticação para desativar proteção, alterar contato, encerrar protocolo, **alterar intervalo de check-in ou graça** e ver o cofre.
@@ -523,7 +523,7 @@ A amostra local é **apagada no ACK**, não reencriptada: o histórico legível 
 | Chave | Configuração | Protege | Desbloqueio |
 |---|---|---|---|
 | `K_dados` | Keystore, **sem** exigência de autenticação de usuário | fila de saída pendente de ACK, **inclusive coordenadas ainda não sincronizadas**, estado operacional, prazos, contador de `sequence` | não requer |
-| `K_leitura` | Keystore, `setUserAuthenticationRequired(true)`, **autenticação a cada uso, sem janela de validade** | histórico legível, cofre, áreas seguras | biometria **ou credencial de tela de bloqueio do aparelho** |
+| `K_leitura` | Keystore, `setUserAuthenticationRequired(true)`, **autenticação a cada uso, sem janela de validade** | **cache local do histórico vindo do servidor** — a fonte do histórico é o servidor —, cofre, áreas seguras | biometria **ou credencial de tela de bloqueio do aparelho** |
 | `K_confirmacao` | Keystore, EC P-256, autenticação a cada uso | assina confirmação de check-in e encerramentos autenticados (Documento 2, §16.8) | idem |
 
 Três correções em relação à versão 2.0, detalhadas no Documento 2, §14.3: o **PIN interno do aplicativo não desbloqueia chave do Keystore** e o fallback real é o credencial do aparelho; a autenticação é exigida **a cada uso**, porque janela de validade deixaria o histórico legível para quem está com o aparelho recém-desbloqueado — o cenário de referência do §13; e **amostras de localização pendentes ficam sob `K_dados`**, porque worker não autentica e, sob chave autenticada, a localização de emergência nunca sairia do aparelho roubado. Custo de experiência declarado: cada abertura do histórico pede autenticação.
@@ -679,7 +679,7 @@ Toda tabela com dado pessoal declara `retention_class`. Os prazos finais depende
 
 # 34. Trilha de auditoria
 
-**34.1 Eventos auditáveis:** login; logout; MFA; recuperação; contato incluído e removido; localização consultada; **protocolo aberto, escalado, retido, liberado e encerrado**; **ciência de contato**; exportação; exclusão; acesso de suporte; mudança de permissão; rotação de chave; alteração administrativa; **liberação manual de protocolo retido, com operador e motivo**.
+**34.1 Eventos auditáveis:** login; logout; MFA; recuperação; contato incluído e removido; localização consultada; **protocolo aberto, escalado, retido, liberado e encerrado**; **ciência de contato**; exportação; exclusão; acesso de suporte; mudança de permissão; rotação de chave; alteração administrativa; **liberação manual de protocolo retido, com operador e motivo**; **alteração de parâmetro de temporização da sessão** (Documento 2, §18.7, item 2a); **prazo suprimido por indisponibilidade própria, com o id da janela** (Documento 2, §18.7.1).
 
 **34.2 Campos:** actor; action; resource; timestamp; resultado; origem; motivo; `correlation_id`; metadados mínimos.
 

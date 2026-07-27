@@ -1,7 +1,8 @@
 # ADR-0003 — Estrutura descartável da Fase 0
 
-**Estado:** PROPOSTO — aguarda aceite do fundador
+**Estado:** **ACEITO** pelo fundador em 2026-07-27
 **Data da proposta:** 2026-07-26
+**Imutável a partir do aceite.** Mudança de decisão é ADR novo que referencia e substitui este (núcleo §10).
 **Prazo declarado:** antes da Fase 0 (Documento 2, §39)
 **Autor:** agente. Agente propõe; só o fundador aceita.
 

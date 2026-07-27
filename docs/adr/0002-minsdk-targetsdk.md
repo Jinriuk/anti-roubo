@@ -1,14 +1,18 @@
 # ADR-0002 — `minSdk` 30 provisório e `targetSdk` 36
 
-**Estado:** PROPOSTO — aguarda aceite do fundador
+**Estado:** **ACEITO** pelo fundador em 2026-07-27
 **Data da proposta:** 2026-07-26
+**Imutável a partir do aceite.** Mudança de decisão é ADR novo que referencia e substitui este (núcleo §10).
 **Prazo declarado:** antes da Fase 0 (Documento 2, §39)
 **Autor:** agente. Agente propõe; só o fundador aceita.
 
-> ⚠️ **Este ADR satisfaz um dos dois critérios que o Documento 2 §39 exige.**
+> ⚠️ **Este ADR foi aceito com um dos dois critérios do Documento 2 §39 satisfeito.**
 > O §39 determina que a decisão seja tomada "por dados de mercado **e** por custo da faixa de
-> ramificação". O custo está integralmente levantado abaixo. **O dado de mercado brasileiro não
-> existe** e não está na tabela de medições da Fase 0. Ver §Lacuna.
+> ramificação". O custo está integralmente levantado abaixo. O dado de mercado brasileiro **não
+> existia** e a lacuna foi endereçada no aceite: a **distribuição de versões do Android no
+> público-alvo** entrou na tabela de medições obrigatórias da Fase 0 (Documento 5), na mesma
+> coleta da parcela sem tela de bloqueio segura. O critério fecha **antes** da revisão, não neste
+> ADR. Ver §Lacuna.
 
 ---
 
@@ -83,6 +87,13 @@ Consequências de aceitar este ADR sem o segundo critério:
 distribuição de versões do público-alvo à tabela de medições da Fase 0, junto com a parcela sem
 tela de bloqueio segura — são a mesma coleta, na mesma amostra, com o mesmo instrumento. Isso
 custa uma linha e fecha o segundo critério antes da revisão.
+
+> ✅ **Encaminhamento no aceite (2026-07-27).** A recomendação foi adotada: a linha
+> *"Distribuição de versões do Android no público-alvo — dado de mercado, com n e fonte"* consta
+> da tabela de medições obrigatórias da Fase 0 e tem critério de aceite próprio. O segundo
+> critério do §39 passa a ter fonte prevista, e a revisão pós-Fase 0 deste ADR ocorrerá com os
+> dois critérios em mãos. **Enquanto o dado não existir, o `minSdk` 30 permanece escolha por
+> default, e este parágrafo é o registro disso.**
 
 ## Consequências positivas
 

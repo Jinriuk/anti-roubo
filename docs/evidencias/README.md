@@ -5,21 +5,26 @@ o comportamento foi comprovado."* e *"Sem evidência, não há aceite. Sem aceit
 (Documento 5, §1 e conclusão.) *"Evidências de teste manual arquivadas em `docs/evidencias/` com
 data e versão"* (módulo 50, §9).
 
-## ⚠️ O template não está disponível
+## Template
 
-O template de evidência é **canônico e vive no núcleo §9**. O Documento 5, §6 e §7 e os módulos
-40 e 50 declaram explicitamente **não manter template próprio** — e o núcleo não está no
-repositório (`docs/agentes/00-nucleo.AUSENTE.md`).
+**Canônico: núcleo §9**, em `docs/agentes/00-nucleo.md`. O Documento 5, §6 e §7 e os módulos 40
+e 50 declaram explicitamente não manter template próprio, e este diretório também não mantém.
+Colar preenchido na PR e arquivar aqui.
 
-Nenhum arquivo deste diretório deve ser preenchido com um template improvisado: o formato de
-registro é fonte, e inventá-lo aqui seria a mesma falha que os documentos existem para impedir.
+Campos que o template exige e que costumam ser omitidos: **status declarado**
+(IMPLEMENTADA | NÃO IMPLEMENTADA), **resultado esperado e resultado observado em campos
+separados**, divergências, limitações conhecidas e decisão.
 
-`docs/fase-0/metodo-de-medicao.md` define o **conteúdo** de cada medição — o que é medido, com
-que instrumento, com que n, com que saída. Falta o **formato**.
+> **Executor:** o campo é literal no template — *"humano identificado; **o agente não executa
+> teste físico e não preenche resultado observado**"*. O agente escreve o método, o instrumento
+> e todos os testes automatizáveis; o resultado observado é de quem observou.
+
+`docs/fase-0/metodo-de-medicao.md` define o **conteúdo** de cada medição da Fase 0 — o que é
+medido, com que instrumento, com que n e com que saída.
 
 ## Dois níveis de evidência
 
-Segundo o núcleo §3.1, citado pelo módulo 40 §5 e pelo módulo 50 §3 e §4:
+Núcleo §3.1:
 
 - **automatizada, por PR** — testes que provam o comportamento;
 - **de campo, por marco de fase** e sempre que a mudança **alterar comportamento observável** de
