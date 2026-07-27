@@ -1,10 +1,14 @@
 # Fase 0 — Método de medição
 
 **Versão:** 1.0
-**Estado:** ⏳ **SUBMETIDO PARA REVISÃO** — não vigente. Nenhuma coleta pode começar.
-**Data de submissão:** 2026-07-27
+**Estado:** ✅ **VIGENTE** — congelado. A coleta pode começar.
+**Submetido:** 2026-07-27 · **Aceito pelo fundador:** 2026-07-27
+**Aceite formal, com hash e commit:** `docs/fase-0/aceite-metodo-v1.0.md`
 **Autor:** agente. Não é o executor das medições.
-**Aceite:** _______________________ (fundador, data) → só então o estado passa a **VIGENTE**
+
+> **Aprovação registrada:** *"MÉTODO v1.0 APROVADO, CONDICIONADO À CORREÇÃO DA INTERPRETAÇÃO DO
+> LIMITE SUPERIOR DO p99."* A correção foi aplicada antes do congelamento e **não alterou**
+> estimador, amostra, procedimento, critérios de invalidação, instrumentos nem variáveis.
 
 > **Por que este documento existe antes de qualquer código.**
 > Documento 5, Fase 0: *"o método de medição é escrito e revisado **antes da coleta**, não
@@ -17,8 +21,10 @@
 
 **O aceite congela este método.** A partir dele:
 
-1. O estado passa a **VIGENTE**, com data e com o **hash do arquivo** registrado no commit de
-   aceite. É o hash que prova, depois, qual método governou cada coleta.
+1. O estado passa a **VIGENTE**, e o aceite é registrado em documento próprio
+   (`aceite-metodo-v1.0.md`) com **oito campos obrigatórios**: caminho do arquivo · versão ·
+   **hash** · commit · data e hora · aprovador humano · medições abrangidas · issues e ADRs
+   relacionados. É o hash que prova, depois, qual método governou cada coleta.
 2. **O executor não altera o método.** Ele *propõe* alteração, que passa pelo mesmo aceite.
 3. Alteração aceita gera **versão nova** (1.1, 1.2, …), com quatro campos obrigatórios: o que
    mudou · por quê · quais medições já coletadas são afetadas · se a coleta anterior continua
@@ -26,19 +32,25 @@
    repositório e continua sendo o método que governou as coletas feitas sob ela.
 4. Toda evidência arquivada declara **sob qual versão do método foi coletada**.
 
-### A regra dura contra alterar o método depois de ver o resultado
+### A regra contra alterar o método depois de ver o resultado
 
-> **Alteração proposta após o início da coleta que toque definição de variável, tamanho de
-> amostra, critério de invalidação, tratamento de dados ou cálculo de percentil
-> INVALIDA a coleta já feita das medições afetadas.** Elas são refeitas sob a versão nova.
+Mudança em variável, tamanho amostral, critérios de invalidação, cálculo, agrupamento ou
+definição de sucesso **cria versão nova**. O efeito sobre a coleta já feita é decidido pelo
+critério abaixo, e não por classificação prévia do tipo de alteração:
 
-Motivo: método ajustado depois de observar o resultado não é método — é justificativa. A regra
-vale mesmo quando a alteração é tecnicamente melhor, e vale principalmente aí, porque é o caso
-em que ela é mais tentadora. Se a melhoria compensar a recoleta, faz-se a recoleta.
+| Natureza da alteração | Efeito sobre a coleta anterior |
+|---|---|
+| **Afeta comparabilidade ou interpretação** dos dados já coletados | **Invalida** a coleta anterior **da medição afetada**. Ela é refeita sob a versão nova |
+| **Meramente editorial** — correção de digitação, esclarecimento de redação que não muda o procedimento | **Não invalida** |
+| **Acréscimo** de medição nova | Não afeta as anteriores; a nova nasce sob a versão nova |
 
-**O que pode ser alterado sem invalidar coleta:** correção de erro de digitação, esclarecimento
-de redação que não muda o procedimento, e **acréscimo** de medição nova (que nasce sob a versão
-nova e não afeta as anteriores).
+> **A decisão de reaproveitamento precisa ser registrada e justificada ANTES de combinar os
+> dados.** Não se junta primeiro e se justifica depois: essa ordem é a que permite escolher a
+> justificativa em função do resultado da junção.
+
+Motivo da regra: método ajustado depois de observar o resultado não é método — é justificativa.
+Ela vale mesmo quando a alteração é tecnicamente melhor, e vale principalmente aí, porque é o
+caso em que ela é mais tentadora. Se a melhoria compensar a recoleta, faz-se a recoleta.
 
 **Quem verifica:** a evidência arquivada declara a versão do método; o revisor confere se a
 versão declarada é anterior ao início da coleta registrado na própria evidência. Divergência é
@@ -152,11 +164,20 @@ evidência inventada.
 | 200 | ordem 100 | ordem 190 | ordem 198 |
 | 100 | ordem 50 | ordem 95 | ordem 99 |
 
-**Por que sem interpolação:** o valor reportado é **uma medição efetivamente observada**, não uma
-média entre duas. Num projeto cuja regra é que evidência inventada é falha crítica, um percentil
-interpolado é um número que ninguém mediu. O estimador por interpolação linear (tipo 7, padrão de
-R e NumPy) foi considerado e **rejeitado** por isso; a diferença entre os dois é irrelevante
-diante da largura do intervalo de confiança abaixo.
+**Natureza desta escolha.** Não é uma regra estatística universal, e não se afirma que a
+interpolação seja incorreta. É uma **decisão metodológica deste projeto**, motivada por
+auditabilidade e rastreabilidade da evidência: o valor reportado corresponde a uma observação
+real, é simples de auditar, evita diferenças silenciosas entre ferramentas, é reproduzível por
+qualquer revisor e é conservador para uma prova de viabilidade operacional. A diferença entre os
+dois estimadores é, de todo modo, irrelevante diante da largura do intervalo de confiança do §4.4.
+
+> ⚠️ **Consequência operacional que o instrumento e o revisor precisam respeitar.**
+> Com n = 200, o p99 pontual **é a 198ª observação ordenada** — nada mais.
+> Planilhas e bibliotecas aplicam interpolação **por padrão** e produziriam outro número sem
+> avisar: `PERCENTIL`/`PERCENTILE` no LibreOffice e no Excel, `numpy.percentile` e
+> `numpy.quantile`, `pandas.Series.quantile` e o `quantile()` de R (tipo 7) todos interpolam por
+> padrão. O cálculo desta fase é **ordenar e indexar**, e o instrumento reporta junto do valor a
+> **ordem** de onde ele saiu, para que o revisor confira sem refazer a conta.
 
 ### 4.4 Intervalo de confiança — obrigatório ao lado de todo percentil
 
@@ -170,12 +191,25 @@ diante da largura do intervalo de confiança abaixo.
 | 100 | p50 | ordem 50 | [40, 61] |
 | 100 | p95 | ordem 95 | [90, 100] |
 
-> ⚠️ **Leitura obrigatória do p99 com n = 200.** O limite superior do intervalo é a **ordem 200**,
-> isto é, o **máximo da amostra**. O intervalo é censurado à direita: os dados **não permitem
-> afirmar** um teto para o p99, apenas um piso. A evidência declara isso com estas palavras, e o
-> ADR-0005-B, ao derivar a `margem_de_rede`, usa **o limite superior do intervalo** — não a
-> estimativa pontual. Usar a estimativa pontual seria adotar o valor mais otimista de um intervalo
-> que a própria amostra não fecha.
+> ⚠️ **Leitura obrigatória do p99 com n = 200.** O limite superior do intervalo cai na **ordem
+> 200**, isto é, no **máximo observado**. O intervalo é **censurado à direita**: com este tamanho
+> de amostra a cauda superior não é bem delimitada.
+>
+> **O máximo da amostra não é o teto verdadeiro do p99, nem limite superior garantido da latência
+> da plataforma.** É apenas **o limite observável que a amostra conseguiu produzir**. A plataforma
+> pode apresentar, em uso futuro, atrasos maiores que o máximo medido.
+
+**Como isso entra no ADR-0005-B, redigido no escopo exato do que os dados sustentam:**
+
+> A proposta inicial de `margem_de_rede` será derivada de forma conservadora a partir do **limite
+> superior observável do intervalo amostral do p99**, que, quando censurado no tamanho de amostra
+> adotado, **coincide com o máximo observado**. Esse valor **não constitui teto estatístico
+> garantido da plataforma** e deverá receber **fator ou parcela adicional de segurança**, definida
+> no ADR-0005-B.
+
+A distinção não é preciosismo de redação: sem ela, o ADR trataria o máximo observado como uma
+garantia estatística que os dados não fornecem — e `margem_de_rede` subdimensionada produz falso
+positivo, que é o erro caro deste produto.
 
 ### 4.5 Tratamento de outliers
 
@@ -197,6 +231,19 @@ nos controles de ambiente do §3 — não depois, ao olhar o resultado.
 
 **Amostra perdida por falha do instrumento** (o spike não gravou) é registrada como lacuna, com o
 número de amostras perdidas, e conta contra o n. Não é outlier e não é invalidação.
+
+### A execução invalidada não desaparece
+
+> **Uma execução invalidada permanece no conjunto de auditoria; sai apenas do conjunto
+> estatístico principal.**
+
+O relatório de cada medição declara, obrigatoriamente: **quantas execuções foram invalidadas ·
+por qual motivo · em qual aparelho e configuração**.
+
+**Uma taxa elevada de invalidação é, ela própria, um resultado.** Pode indicar instrumento
+frágil, procedimento pouco reproduzível ou plataforma instável — e qualquer das três muda a
+leitura do número que sobreviveu. Uma medição cujo p99 é bom, obtida descartando metade das
+execuções, não é uma medição boa.
 
 ---
 
@@ -234,10 +281,31 @@ momento:
 Cada linha declara **hipótese testada**, **variável medida** e **o que constitui reprovação**.
 
 > **Sobre "sucesso e reprovação":** há dois tipos, e a distinção é obrigatória.
-> **Reprovação estrutural** é definida pelos documentos e está abaixo — é binária e não depende
-> de número. **Reprovação por limiar numérico** de bateria e de falso positivo é
-> **`[ABERTO — FASE 0]`, propriedade do ADR-0012**, e **não é declarada aqui**: esta fase produz
-> o número, não o limiar. Declarar limiar neste documento seria fechar item aberto sem ADR.
+> **Reprovação estrutural** é definida pelos documentos, é binária e não depende de número — ela
+> determina se a hipótese técnica sobrevive, e por isso pertence ao método.
+> **Reprovação por limiar numérico** de bateria e de falso positivo é
+> **`[ABERTO — FASE 0]`, propriedade do ADR-0012**, e **não é declarada aqui**: o método define
+> *como medir*; o ADR define *como interpretar e aceitar*. Declarar limiar neste documento
+> fecharia item aberto sem ADR.
+
+### 6.0 Reprovação estrutural — as seis formas de a hipótese técnica não sobreviver
+
+Qualquer uma reprova a fase, independentemente de número:
+
+1. **Nenhum candidato** de temporização oferece comportamento compatível com a promessa;
+2. **a retomada é inviável na matriz mínima** — nem por boot, nem por qualquer gatilho;
+3. **a política da Play elimina todos os candidatos necessários** — reprovação por política, não
+   por medição, e é por isso que o parecer de monitoramento vem antes do ADR-0007;
+4. **o canal de alerta não possui viabilidade operacional** — inclusive por filtragem de SMS com
+   link sem alternativa praticável;
+5. **o consumo impede sessão de duração útil** — não é o limiar fino do ADR-0012, é a
+   impossibilidade de o produto existir num dia de uso;
+6. **o instrumento não consegue produzir evidência reproduzível** — se a mesma configuração
+   produz resultados que não se repetem, não há o que interpretar, e o problema é anterior a
+   qualquer limiar.
+
+A sexta é a que se costuma esquecer, e conecta-se ao §4.5: **taxa elevada de invalidação é
+sintoma dela**.
 
 | # | Hipótese testada | Variável medida | Saída | Reprovação estrutural |
 |---|---|---|---|---|
@@ -303,6 +371,62 @@ Beta A. A evidência declara isso; o ADR-0012 usa o número sabendo disso.
 
 **Nenhum item `[ABERTO — FASE 0]` é fechado por este documento.** Ele produz o número; o ADR
 fecha o item, e só o fundador aceita ADR.
+
+### 7.1 O que o ADR-0005-B precisa decidir, e o que este método não decide
+
+A `margem_de_rede` **não é** o p99 observado. É:
+
+```text
+margem_de_rede = referência conservadora observada + parcela operacional de segurança
+```
+
+A **referência conservadora observada** vem desta fase: o limite superior observável do intervalo
+amostral do p99 (§4.4), com a ressalva de que ele **não é teto estatístico garantido**.
+
+A **parcela operacional de segurança não é inventada neste método.** Ela é decidida no ADR-0005-B,
+considerando, no mínimo: distribuição observada · diferença entre fabricantes · diferença entre
+estados de bateria · comportamento em Doze · tamanho da amostra · impacto do atraso na
+experiência · custo do falso positivo · capacidade de reconciliação do servidor.
+
+**O ADR-0005-B distingue quatro margens, e elas não precisam ser iguais:**
+
+| Margem | Onde atua |
+|---|---|
+| **Margem do aparelho** | quanto o aparelho tolera antes de registrar a ausência |
+| **Margem do vigilante** | quanto o servidor espera antes de avaliar o prazo vencido |
+| **Período de graça apresentado ao usuário** | o que a interface promete e o usuário percebe |
+| **Margem adicional com cobertura degradada** | eventual acréscimo em `COBERTURA_SUSPENSA` |
+
+Tratá-las como um único número é o erro que o §12.5 já evita ao separar os termos do orçamento.
+
+### 7.2 Dimensões pré-registradas do ADR-0012
+
+Os limiares de bateria e de falso positivo **não são fixados aqui**, e o ADR-0012 precisa ser
+decidido **antes do encerramento da Fase 0** — não antes do começo da coleta.
+
+Para que o ADR não seja ajustado aos resultados escolhendo só as métricas favoráveis, **as
+dimensões que ele vai considerar ficam registradas antes da coleta**:
+
+| Dimensão | Medição que a produz | Cobertura |
+|---|---|---|
+| Consumo adicional por hora | M5, M8, M13 | ✅ |
+| Consumo adicional no ciclo diário | M5 | ✅ |
+| **Consumo por nível de coleta** (`economico`, `elevado`, `emergencial`) | M5 | ⚠️ **parcial — ver nota** |
+| Impacto por fabricante | M5, M8, M13, por célula | ✅ |
+| Impacto em tela bloqueada | M5, M6 | ✅ |
+| Taxa de escalonamento interno indevido | M14 | ✅ |
+| Taxa de acionamento externo indevido | M14 | ✅ |
+| Taxa de check-in não percebido | M14, motivo de falha "não viu" | ✅ |
+| Duração típica de sessão | controles do §3 | ✅ |
+| Custo operacional do falso positivo | planilha de custo (entregável de mesa) + M10 | ✅ |
+
+> ⚠️ **Lacuna de cobertura declarada, não corrigida aqui.** O Documento 5 manda medir o consumo
+> **apenas no nível `economico`**. Os níveis `elevado` e `emergencial` (Documento 2, §13.1) não
+> são medidos nesta fase como o escopo está escrito. Corrigir isso seria **alterar o escopo do
+> Documento 5**, o que a aprovação deste método explicitamente não autoriza. Antes do ADR-0012,
+> uma das duas: acrescentar os dois níveis por versão nova do método — o que é **acréscimo**, e
+> pelo §0 não invalida nada já coletado —, ou o ADR-0012 declarar a dimensão como **não medida**
+> e decidir sem ela. Registrado como pendência da fase, não como decisão tomada.
 
 ---
 
