@@ -65,6 +65,32 @@ Cada fase recebe **alvo** e **limite duro** em semanas de calendário do fundado
 
 **Entregável real:** matriz de capacidade, medições e ADRs. Não é software.
 
+### Timebox
+
+Declarado pelo fundador em 2026-07-27, conforme o §2 — *"fase sem timebox não inicia"*.
+
+> **Alvo: 6 semanas · Limite duro: 8 semanas**
+
+| Período | Conteúdo |
+|---|---|
+| **Semana 1** | Preparação: revisão e aceite do método, instrumentos, aparelhos, contas e operadoras |
+| **Semanas 2 a 5** | Coleta principal **e entregáveis de mesa em paralelo** |
+| **Semana 6** | Consolidação, ADRs e relatório de encerramento |
+| **Semanas 7 e 8** | **Reserva exclusiva** para repetição de ensaios invalidados, dependências externas e correção de lacunas |
+
+As semanas 7 e 8 não são extensão do escopo: são reserva para o que a coleta física produz de
+imprevisto — execução invalidada, aparelho indisponível, provedor que não responde.
+
+**O limite de oito semanas não autoriza alongamento automático.** Ao alcançá-lo, ocorre **decisão
+formal**, registrada no relatório de encerramento (§7), entre quatro saídas: **aceitar evidência
+parcial** · **reduzir escopo** pela prioridade do §8 · **redesenhar hipótese** · **reprovar a
+fase**.
+
+**Decisão de calibragem registrada:** o máximo provisório da faixa de intervalo de confirmação
+permanece em **60 minutos**, e não foi reduzido para 30 para encurtar o calendário. Redução da
+faixa é decisão de produto com base em evidência, não ajuste para caber no cronograma. O timebox
+absorve o custo de ~23 dias de coleta contínua da primeira medição.
+
 ### Escopo
 
 - Protótipo mínimo: ativação, persistência de sessão e prazo, pedido de confirmação, registro de ausência, obtenção de localização, evento offline, sincronização posterior, recuperação após kill e reboot, notificação com tela bloqueada.
@@ -116,7 +142,7 @@ Quatro ou mais aparelhos reais (Samsung, Motorola, Xiaomi ou Redmi), **dois dele
 - ☐ parecer escrito sobre a classificação como aplicativo de monitoramento;
 - ☐ **entrega de SMS com link curto medida nas três principais operadoras, com plano B escrito se houver filtragem**;
 - ☐ **custo por cadastro, por alerta e por falso positivo calculado em três cenários de taxa**;
-- ☐ **método de medição escrito e revisado antes da coleta, com template do Documento 4, §9 preenchido por executor humano**;
+- ☐ **método de medição escrito, revisado e aceito antes da coleta**, com o aceite datado e o método congelado por versão — alteração posterior é versão nova, nunca sobrescrita, e alteração que toque variável, amostra, invalidação ou cálculo **invalida a coleta já feita das medições afetadas**; template do Documento 4, §9 preenchido por executor humano, declarando a versão do método sob a qual a coleta ocorreu;
 - ☐ parecer de monitoramento concluído **antes** da proposta do ADR-0007, e decisão sobre `isMonitoringTool` registrada;
 - ☐ ADR-0007 (temporização) e ADR-0008 (recurso principal declarado de localização em segundo plano) propostos com base nas medições;
 - ☐ ADR-0011 provisório (provedor de SMS e cascata) proposto;
