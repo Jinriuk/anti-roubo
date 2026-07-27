@@ -92,8 +92,12 @@ evidência, não ao cronograma.
 
 ## 5. Entregáveis de mesa — não dependem de hardware
 
-- [ ] **Parecer escrito de classificação como aplicativo de monitoramento** — vem **antes** do
-      ADR-0007, porque pode eliminar candidato de temporização por política
+- [x] **Parecer escrito de classificação como aplicativo de monitoramento** — `parecer-classificacao-monitoramento.md`.
+      **PROVISÓRIO**, com seis verificações pendentes que exigem a conta do Play Console.
+      Conclusão provisória: o produto **não é** aplicativo de monitoramento, e por isso
+      **nenhum candidato de temporização é eliminado por esta política** — `WorkManager` puro
+      segue vivo para o ADR-0007. Achado: enquadrar-se não custaria uma notificação, **impediria
+      a publicação** (issue #20)
 - [ ] Decisão sobre a flag `isMonitoringTool` e sobre a divulgação na descrição da loja
 - [ ] Matriz de permissões e políticas do Documento 2, §34.5 preenchida
 - [ ] Textos das declarações · roteiro do vídeo · texto de divulgação proeminente
