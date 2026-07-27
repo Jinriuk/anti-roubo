@@ -25,7 +25,7 @@ E a consequência que atravessa o produto inteiro:
 
 | | |
 |---|---|
-| **Fase corrente** | Fase 0 — **pronta para iniciar**, faltando revisão do método e timebox. Ver `docs/fase-0/README.md` |
+| **Fase corrente** | **Fase 0 — AUTORIZADA E EM CURSO.** Timebox 6/8 semanas; método v1.0 congelado. Ver `docs/fase-0/README.md` |
 | **Código de produção** | nenhum. Não existe `android/`, `backend/` nem `spike/` |
 | **Documentação** | corpus completo no repositório, incluindo o núcleo v2.3 |
 | **ADRs** | 0001, 0002 e 0003 ✅ **aceitos**. 0004, 0005-A e 0013 pendentes (pré-condição da Fase 1) |
